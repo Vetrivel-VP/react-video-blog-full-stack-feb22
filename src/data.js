@@ -1,4 +1,4 @@
-import { IoGameController } from "react-icons/io5";
+import { IoGameController, IoMusicalNote } from "react-icons/io5";
 import { FaSmileWink, FaFilm, FaQq } from "react-icons/fa";
 import { GiAngelOutfit } from "react-icons/gi";
 
@@ -8,4 +8,5 @@ export const categories = [
   { id: 3, name: "Stories", iconSrc: <FaQq /> },
   { id: 4, name: "Movies", iconSrc: <FaFilm /> },
   { id: 5, name: "Anime", iconSrc: <GiAngelOutfit /> },
+  { id: 6, name: "Music", iconSrc: <IoMusicalNote /> },
 ];
