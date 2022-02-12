@@ -1,39 +1,19 @@
-import {
-  Button,
-  Flex,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-} from "@chakra-ui/react";
-import React, { useRef, useState } from "react";
+// prettier-ignore
+import {  Button,  Flex,  FormLabel,  Input,  InputGroup,  InputLeftElement,  Menu,  MenuButton,  MenuItem,  MenuList, Text,} from "@chakra-ui/react";
+import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { FaChevronDown } from "react-icons/fa";
 import { categories } from "../data";
-import {
-  IoCheckmark,
-  IoClose,
-  IoCloudUpload,
-  IoLocation,
-  IoTrash,
-  IoWarning,
-} from "react-icons/io5";
+// prettier-ignore
+import {  IoCheckmark,  IoClose,  IoCloudUpload,  IoLocation,  IoTrash,  IoWarning,} from "react-icons/io5";
 import Spinner from "./Spinner";
 
 import { firebaseApp } from "../firebase-config";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
+// prettier-ignore
+import { getStorage,  ref,  uploadBytesResumable,  getDownloadURL,  deleteObject,} from "firebase/storage";
+import { collection, setDoc, getFirestore, doc } from "firebase/firestore";
 import AlertMsg from "./AlertMsg";
+import { useNavigate } from "react-router-dom";
 
 const Create = () => {
   const [videoAsset, setVideoAsset] = useState(null);
@@ -44,13 +24,22 @@ const Create = () => {
   const [alertStatus, setAlertStatus] = useState("");
   const [alertMsg, setAlertMsg] = useState("");
   const [alertIcon, setAlertIcon] = useState(null);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
 
   const storage = getStorage(firebaseApp);
+  const fireStoreDb = getFirestore(firebaseApp);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {}, [title, location, category, description]);
 
   const uploadImage = (e) => {
     setLoading(true);
     const videoFile = e.target.files[0];
-    const storageRef = ref(storage, `Videos/${videoFile.name}`);
+    const storageRef = ref(storage, `Videos/${Date.now()}-${videoFile.name}`);
 
     const uploadTask = uploadBytesResumable(storageRef, videoFile);
 
@@ -97,6 +86,43 @@ const Create = () => {
         console.log(error);
       });
   };
+
+  const getDescriptionValue = () => {
+    if (editorRef.current) {
+      console.log(editorRef.current.getContent());
+      setDescription(editorRef.current.getContent());
+    }
+  };
+
+  const uploadDetails = async () => {
+    try {
+      setLoading(true);
+      if (!title && !category & !videoAsset) {
+        setAlert(true);
+        setAlertStatus("error");
+        setAlertIcon(<IoWarning fontSize={25} />);
+        setAlertMsg("Required Fields are missing!");
+        setTimeout(() => {
+          setAlert(false);
+        }, 4000);
+        setLoading(false);
+      } else {
+        const data = {
+          id: `${Date.now()}`,
+          title: title,
+          category: category,
+          location: location,
+          videoUrl: videoAsset,
+          description: description,
+        };
+        await setDoc(doc(fireStoreDb, "videos", `${Date.now()}`), data);
+        setLoading(false);
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Flex
       justifyContent={"center"}
@@ -130,6 +156,8 @@ const Create = () => {
           type="text"
           _placeholder={{ color: "gray.500" }}
           fontSize={20}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
 
         <Flex
@@ -156,6 +184,7 @@ const Create = () => {
                     _hover={{ bg: "blackAlpha.300" }}
                     fontSize={20}
                     px={4}
+                    onClick={() => setCategory(data.id)}
                   >
                     {data.iconSrc} <Text ml={4}>{data.name}</Text>
                   </MenuItem>
@@ -177,6 +206,8 @@ const Create = () => {
               type="text"
               _placeholder={{ color: "gray.500" }}
               fontSize={20}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
           </InputGroup>
         </Flex>
@@ -265,6 +296,7 @@ const Create = () => {
         </Flex>
 
         <Editor
+          onChange={getDescriptionValue}
           onInit={(evt, editor) => (editorRef.current = editor)}
           apiKey={process.env.REACT_APP_TINYMCE_EDITOR_API}
           init={{
@@ -285,6 +317,19 @@ const Create = () => {
               "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
           }}
         />
+
+        <Button
+          isLoading={loading}
+          loadingText="uploading"
+          colorScheme="linkedin"
+          variant={`${loading ? "outline" : "solid"}`}
+          width={"xl"}
+          _hover={{ shadow: "lg" }}
+          fontSize={20}
+          onClick={() => uploadDetails()}
+        >
+          Upload
+        </Button>
       </Flex>
     </Flex>
   );
