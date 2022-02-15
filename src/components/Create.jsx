@@ -1,5 +1,5 @@
 // prettier-ignore
-import {  Button,  Flex,  FormLabel,  Input,  InputGroup,  InputLeftElement,  Menu,  MenuButton,  MenuItem,  MenuList, Text,} from "@chakra-ui/react";
+import {  Button,  Flex,  FormLabel,  Input,  InputGroup,  InputLeftElement,  Menu,  MenuButton,  MenuItem,  MenuList, Text, useColorMode, useColorModeValue,} from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { FaChevronDown } from "react-icons/fa";
@@ -14,8 +14,12 @@ import { getStorage,  ref,  uploadBytesResumable,  getDownloadURL,  deleteObject
 import { collection, setDoc, getFirestore, doc } from "firebase/firestore";
 import AlertMsg from "./AlertMsg";
 import { useNavigate } from "react-router-dom";
+import { fetchUser } from "../utils/fetchUser";
 
 const Create = () => {
+  const { colorMode } = useColorMode();
+  const bg = useColorModeValue("gray.50", "gray.900");
+  const textColor = useColorModeValue("gray.900", "gray.50");
   const [videoAsset, setVideoAsset] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -33,6 +37,8 @@ const Create = () => {
   const fireStoreDb = getFirestore(firebaseApp);
 
   const navigate = useNavigate();
+
+  const [userInfo] = fetchUser();
 
   useEffect(() => {}, [title, location, category, description]);
 
@@ -110,6 +116,7 @@ const Create = () => {
         const data = {
           id: `${Date.now()}`,
           title: title,
+          userId: userInfo?.uid,
           category: category,
           location: location,
           videoUrl: videoAsset,
@@ -129,7 +136,6 @@ const Create = () => {
       alignItems={"center"}
       width="100vw"
       minHeight={"100vh"}
-      bg={"whiteAlpha.500"}
       padding="10"
     >
       <Flex
@@ -195,7 +201,13 @@ const Create = () => {
           <InputGroup>
             <InputLeftElement
               pointerEvents="none"
-              children={<IoLocation color="#444" fontSize={20} />}
+              children={
+                <IoLocation
+                  color="#444"
+                  fontSize={20}
+                  color={`${colorMode == "dark" ? "#f1f1f1" : "#111"}`}
+                />
+              }
             />
             <Input
               variant="flushed"
@@ -243,8 +255,11 @@ const Create = () => {
                     <Spinner progress={progress} />
                   ) : (
                     <>
-                      <IoCloudUpload fontSize={30} color="#666" />
-                      <Text mt={5} fontSize={20} color="gray.600">
+                      <IoCloudUpload
+                        fontSize={30}
+                        color={`${colorMode == "dark" ? "#f1f1f1" : "#111"}`}
+                      />
+                      <Text mt={5} fontSize={20} color={textColor}>
                         Click to upload
                       </Text>
                     </>
@@ -315,6 +330,8 @@ const Create = () => {
               "removeformat | help",
             content_style:
               "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+            content_css: "dark",
+            skin: "oxide-dark",
           }}
         />
 

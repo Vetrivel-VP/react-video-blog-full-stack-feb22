@@ -17,7 +17,6 @@ const Login = () => {
     const { user } = await signInWithPopup(firebaseAuth, provider);
 
     const { refreshToken, providerData } = user;
-    console.log(refreshToken, providerData);
     localStorage.setItem("user", JSON.stringify(providerData));
     localStorage.setItem("accessToken", JSON.stringify(refreshToken));
     navigate("/", { replace: true });
