@@ -29,7 +29,7 @@ const Create = () => {
   const [alertMsg, setAlertMsg] = useState("");
   const [alertIcon, setAlertIcon] = useState(null);
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("Choose a category");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
 
@@ -180,7 +180,7 @@ const Create = () => {
               width="full"
               colorScheme="blue"
             >
-              Actions
+              {category}
             </MenuButton>
             <MenuList zIndex={101} width={"md"} shadow="xl">
               {categories &&

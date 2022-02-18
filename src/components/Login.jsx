@@ -6,19 +6,24 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { firebaseApp } from "../firebase-config";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
-const Login = () => {
+const Login = ({ setUser }) => {
   const firebaseAuth = getAuth(firebaseApp);
 
   const provider = new GoogleAuthProvider();
   const navigate = useNavigate();
 
   const login = async () => {
+    const fireStoreDb = getFirestore(firebaseApp);
     const { user } = await signInWithPopup(firebaseAuth, provider);
 
     const { refreshToken, providerData } = user;
+
     localStorage.setItem("user", JSON.stringify(providerData));
     localStorage.setItem("accessToken", JSON.stringify(refreshToken));
+    setUser(providerData[0]);
+    setDoc(doc(fireStoreDb, "users", providerData[0].uid), providerData[0]);
     navigate("/", { replace: true });
   };
 

@@ -1,14 +1,10 @@
 import { Flex } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { Category, Create, Feed, NavBar, Search, VideoPin } from ".";
-import { fetchUser } from "../utils/fetchUser";
 import { categories } from "../data";
-const [userInfo] = fetchUser();
 
-const Home = () => {
-  const [user, setUser] = useState(userInfo);
-
+const Home = ({ user }) => {
   return (
     <>
       <NavBar />
@@ -20,7 +16,7 @@ const Home = () => {
           width={20}
         >
           {categories &&
-            categories.map((data) => <Category key={data.id} data={data} />)}
+            categories?.map((data) => <Category key={data.id} data={data} />)}
         </Flex>
         <Flex width={"full"} justifyContent="center" alignItems="center">
           <Routes>

@@ -47,9 +47,10 @@ const Feed = () => {
       spacing="20px"
       width={"full"}
       px={2}
+      overflowX="hidden"
     >
       {feeds &&
-        feeds.map((data) => (
+        feeds?.map((data) => (
           <VideoDetail maxWidth={420} height="80px" key={data.id} data={data} />
         ))}
     </SimpleGrid>
