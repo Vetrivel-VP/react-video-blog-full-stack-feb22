@@ -16,16 +16,18 @@ const Spinner = ({ msg, progress }) => {
       <Text fontSize={25} textAlign="center" px={2}>
         {msg}
       </Text>
-      <Progress
-        mt={50}
-        hasStripe
-        isAnimated
-        size="sm"
-        value={Number.parseInt(progress)}
-        width={"lg"}
-        rounded="sm"
-        colorScheme={"linkedin"}
-      />
+      {progress && (
+        <Progress
+          mt={50}
+          hasStripe
+          isAnimated
+          size="sm"
+          value={Number.parseInt(progress)}
+          width={"lg"}
+          rounded="sm"
+          colorScheme={"linkedin"}
+        />
+      )}
     </Flex>
   );
 };

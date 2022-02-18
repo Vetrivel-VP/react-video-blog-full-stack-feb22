@@ -13,11 +13,12 @@ import logo from "../img/logo.png";
 import logoDark from "../img/logo_dark.png";
 
 import { IoSearch, IoSunny, IoMoon, IoAdd } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const NavBar = () => {
-  const bg = useColorModeValue("gray.50", "gray.900");
+  const bg = useColorModeValue("gray.600", "gray.300");
   const { toggleColorMode, colorMode } = useColorMode();
+  const navigate = useNavigate();
   return (
     <Flex
       justifyContent={"space-between"}
@@ -44,6 +45,7 @@ const NavBar = () => {
           fontSize={18}
           fontWeight="medium"
           variant={"filled"}
+          onFocus={() => navigate("/search")}
         />
       </InputGroup>
 
@@ -90,7 +92,7 @@ const NavBar = () => {
           >
             <IoAdd
               fontSize={"25"}
-              color={`${colorMode == "dark" ? "#f1f1f1" : "#111"}`}
+              color={`${colorMode == "dark" ? "#111" : "#f1f1f1"}`}
             />
           </Flex>
         </Link>

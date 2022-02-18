@@ -190,7 +190,7 @@ const Create = () => {
                     _hover={{ bg: "blackAlpha.300" }}
                     fontSize={20}
                     px={4}
-                    onClick={() => setCategory(data.id)}
+                    onClick={() => setCategory(data.name)}
                   >
                     {data.iconSrc} <Text ml={4}>{data.name}</Text>
                   </MenuItem>

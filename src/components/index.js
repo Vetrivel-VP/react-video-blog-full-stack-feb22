@@ -4,3 +4,5 @@ export { default as Login } from "./Login";
 export { default as NavBar } from "./NavBar";
 export { default as Feed } from "./Feed";
 export { default as Category } from "./Category";
+export { default as VideoPin } from "./VideoPin";
+export { default as Search } from "./Search";
