@@ -72,7 +72,7 @@ const VideoPin = () => {
   }, [videoId]);
 
   useEffect(() => {
-    console.log(played);
+    // console.log(played);
   }, [muted, volume, played]);
 
   const handleFastForward = () => {
@@ -168,12 +168,11 @@ const VideoPin = () => {
               left={0}
               right={0}
               bottom={0}
-              bg={"blackAlpha.600"}
+              // bg={"blackAlpha.600"}
               direction="column"
               justifyContent={"space-between"}
               alignItems="center"
               zIndex={1}
-              p={4}
               cursor={"pointer"}
             >
               <Flex
@@ -188,7 +187,13 @@ const VideoPin = () => {
                 )}
               </Flex>
 
-              <Flex width={"full"} alignItems="center" direction={"column"}>
+              <Flex
+                width={"full"}
+                alignItems="center"
+                direction={"column"}
+                bgGradient="linear(to-t, blackAlpha.900, blackAlpha.500, blackAlpha.50)"
+                px="4"
+              >
                 <Slider
                   aria-label="slider-ex-4"
                   min={0}

@@ -34,7 +34,7 @@ const Feed = () => {
         setIsLoading(false);
       });
     }
-    console.log(feeds);
+    // console.log(feeds);
   }, [categoryId]);
 
   if (isLoading) return <Spinner msg={"Loading your feeds"} />;
