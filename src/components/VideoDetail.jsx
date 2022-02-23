@@ -6,15 +6,17 @@ import {
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { fetchUser } from "../utils/fetchUser";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { IoHeart } from "react-icons/io5";
 
 const VideoDetail = ({ data }) => {
   const { colorMode } = useColorMode();
-  const bg = useColorModeValue("gray.50", "gray.900");
-  const textColor = useColorModeValue("gray.600", "gray.100");
+  const [isFavourite, setIsFavourite] = useState(false);
+  const bg = useColorModeValue("blackAlpha.700", "gray.900");
+  const textColor = useColorModeValue("gray.100", "gray.100");
   const [userInfo] = fetchUser();
   return (
     <Flex
@@ -22,11 +24,12 @@ const VideoDetail = ({ data }) => {
       alignItems="center"
       direction={"column"}
       cursor={"pointer"}
-      shadow={"md"}
+      shadow={"lg"}
       _hover={{ shadow: "xl" }}
       rounded={"md"}
       overflow={"hidden"}
       position={"relative"}
+      maxWidth={"300px"}
     >
       <Link to={`/videoDetail/${data.id}`}>
         <video
@@ -63,7 +66,7 @@ const VideoDetail = ({ data }) => {
             />
           </Flex>
           <Text fontSize={12} color={textColor} ml={"auto"}>
-            {moment(Date(data.id)).fromNow()}
+            {moment(new Date(parseInt(data.id)).toISOString()).fromNow()}
           </Text>
         </Flex>
       </Link>

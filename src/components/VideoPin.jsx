@@ -1,23 +1,48 @@
 import {
+  Badge,
   Box,
+  Button,
   Flex,
   Grid,
   GridItem,
   Image,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
+  Stack,
   Text,
   Tooltip,
+  useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { getFirestore } from "firebase/firestore";
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { firebaseApp } from "../firebase-config";
-import { getSpecificVideo } from "../utils/fetchData";
+import {
+  deleteVideo,
+  getSpecificVideo,
+  getUserInfo,
+  recommendedFeed,
+} from "../utils/fetchData";
 import Spinner from "./Spinner";
-import { IoHome, IoPause, IoPlay, IoTrash } from "react-icons/io5";
+import {
+  IoCloudDownload,
+  IoDownload,
+  IoHome,
+  IoPause,
+  IoPlay,
+  IoShareSocial,
+  IoTrash,
+} from "react-icons/io5";
 import {
   MdDownload,
   MdForward10,
@@ -29,6 +54,11 @@ import {
 import ReactPlayer from "react-player";
 import screenfull from "screenfull";
 import logo from "../img/logo.png";
+import HTMLReactParser from "html-react-parser";
+import { FcApproval } from "react-icons/fc";
+import moment from "moment";
+import { fetchUser } from "../utils/fetchUser";
+import RecommendedFeeds from "./RecommendedFeeds";
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -46,10 +76,18 @@ const format = (seconds) => {
 };
 
 const VideoPin = () => {
+  const { colorMode } = useColorMode();
+  const bg = useColorModeValue("gray.50", "gray.900");
+  const textColor = useColorModeValue("gray.900", "gray.50");
   const { videoId } = useParams();
   const fireStoreDb = getFirestore(firebaseApp);
   const [isLoading, setIsLoading] = useState(false);
   const [videoInfo, setVideoInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [feeds, setFeeds] = useState(null);
+
+  const [localUser] = fetchUser();
+  const navigate = useNavigate();
 
   // player states
   const [isPlaying, setIsPlaying] = useState(false);
@@ -66,10 +104,22 @@ const VideoPin = () => {
       setIsLoading(true);
       getSpecificVideo(fireStoreDb, videoId).then((data) => {
         setVideoInfo(data);
-        setIsLoading(false);
+        recommendedFeed(fireStoreDb, data.category, videoId).then((feed) => {
+          setFeeds(feed);
+        });
+        getUserInfo(fireStoreDb, data.userId).then((user) => {
+          setUserInfo(user);
+          setIsLoading(false);
+        });
       });
     }
   }, [videoId]);
+
+  const deleteTheVideo = (videoId) => {
+    setIsLoading(true);
+    deleteVideo(fireStoreDb, videoId);
+    navigate("/");
+  };
 
   useEffect(() => {
     // console.log(played);
@@ -134,17 +184,12 @@ const VideoPin = () => {
           <IoHome fontSize={25} />
         </Link>
         <Box width="1px" height="20px" bg={"gray.500"} mx={2}></Box>
-        <Text
-          isTruncated
-          color={"gray.700"}
-          fontWeight="semibold"
-          fontSize={20}
-        >
+        <Text isTruncated color={textColor} fontWeight="semibold" fontSize={20}>
           {videoInfo?.title}
         </Text>
       </Flex>
       <Grid templateColumns="repeat(3, 1fr)" gap={2} width="100%">
-        <GridItem w="100%" bg="blue.500" colSpan={2}>
+        <GridItem w="100%" colSpan={2}>
           <Flex
             width={"full"}
             bg="black"
@@ -296,9 +341,103 @@ const VideoPin = () => {
               </Flex>
             </Flex>
           </Flex>
+
+          {/* Descrition */}
+          {videoInfo?.description && (
+            <Flex my={6} direction="column">
+              <Text my={4} fontSize={25} fontWeight="semibold">
+                Description
+              </Text>
+              {HTMLReactParser(videoInfo?.description)}
+            </Flex>
+          )}
         </GridItem>
-        <GridItem w="100%" h="10" bg="blue.500" colSpan={1}></GridItem>
+        <GridItem w="100%" h="10" colSpan={1}>
+          {userInfo && (
+            <Flex direction={"column"} width="full">
+              <Flex alignItems={"center"} width="full">
+                <Image
+                  src={userInfo?.photoURL}
+                  rounded="full"
+                  width={"60px"}
+                  height="60px"
+                  minHeight={"60px"}
+                  minWidth="60px"
+                  shadow={"lg"}
+                />
+
+                <Flex direction={"column"} ml={3}>
+                  <Flex alignItems={"center"}>
+                    <Text isTruncated fontSize={20} fontWeight="semibold">
+                      {userInfo?.displayName}
+                    </Text>
+                    <FcApproval />
+                  </Flex>
+                  {videoInfo?.id && (
+                    <Text fontSize={12}>
+                      {moment(
+                        new Date(parseInt(videoInfo.id)).toISOString()
+                      ).fromNow()}
+                    </Text>
+                  )}
+                </Flex>
+              </Flex>
+              <Stack direction="row" justifyContent={"space-around"} mt={6}>
+                {userInfo?.uid === localUser.uid && (
+                  <Popover closeOnEsc>
+                    <PopoverTrigger>
+                      <Button colorScheme={"red"} rounded="full" px={6}>
+                        <IoTrash fontSize={20} color="#FFF" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader>Confirmation!</PopoverHeader>
+                      <PopoverBody>
+                        Are you sure you want to Delete it?
+                        <Box my={2}>
+                          <Button
+                            colorScheme={"red"}
+                            onClick={() => deleteTheVideo(videoId)}
+                          >
+                            Yes
+                          </Button>
+                        </Box>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                )}
+
+                <a
+                  href={videoInfo.videoUrl}
+                  download
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button
+                    colorScheme={"whatsapp"}
+                    rounded="full"
+                    my={2}
+                    mt={"0"}
+                    width="48"
+                  >
+                    Free Download
+                  </Button>
+                </a>
+              </Stack>
+            </Flex>
+          )}
+        </GridItem>
       </Grid>
+      {feeds && (
+        <Flex direction={"column"} width="full" my={6}>
+          <Text my={4} fontSize={25} fontWeight="semibold">
+            Recommended Videos
+          </Text>
+
+          <RecommendedFeeds feeds={feeds} />
+        </Flex>
+      )}
     </Flex>
   );
 };

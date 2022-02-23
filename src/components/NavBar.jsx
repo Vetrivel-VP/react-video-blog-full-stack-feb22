@@ -5,6 +5,10 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -12,10 +16,10 @@ import React from "react";
 import logo from "../img/logo.png";
 import logoDark from "../img/logo_dark.png";
 
-import { IoSearch, IoSunny, IoMoon, IoAdd } from "react-icons/io5";
+import { IoSearch, IoSunny, IoMoon, IoAdd, IoLogOut } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 
-const NavBar = () => {
+const NavBar = ({ user }) => {
   const bg = useColorModeValue("gray.600", "gray.300");
   const { toggleColorMode, colorMode } = useColorMode();
   const navigate = useNavigate();
@@ -45,7 +49,7 @@ const NavBar = () => {
           fontSize={18}
           fontWeight="medium"
           variant={"filled"}
-          onFocus={() => navigate("/search")}
+          // onFocus={() => navigate("/search")}
         />
       </InputGroup>
 
@@ -96,6 +100,20 @@ const NavBar = () => {
             />
           </Flex>
         </Link>
+
+        <Menu>
+          <MenuButton>
+            <Image src={user?.photoURL} width="40px" rounded={"full"} />
+          </MenuButton>
+          <MenuList shadow={"dark-lg"}>
+            <Link to={`/profile/${user?.uid}`}>
+              <MenuItem>My Account</MenuItem>
+            </Link>
+            <MenuItem flexDirection={"row"} alignItems="center" gap={4}>
+              Log Out <IoLogOut fontSize={20} />
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     </Flex>
   );
